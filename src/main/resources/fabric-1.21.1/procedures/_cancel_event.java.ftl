@@ -1,0 +1,1 @@
+${JavaModName}Triggers.eventResult = false;

@@ -9,7 +9,7 @@ every feature that is knowingly not available yet.
 ## Architecture
 - Target: Minecraft 1.21.1, Fabric Loader 0.20.1, Fabric API 0.116.17, Java 21 bytecode (JDK 25 toolchain),
   Fabric Loom 1.15.5 and the locally provided Gradle 9.8.0 distribution.
-- The plugin project lives in `plugin/`. The repository root keeps only the reference resources, the local
+- The plugin project lives in `plugin/` (a Gradle project: `build.gradle`, `settings.gradle`, `gradle.properties`). Generator sources are under `plugin/src/main/resources/fabric-1.21.1/`; `plugin.json`, `LICENSE` and `CHANGELOG.md` stay at the plugin root. `README.md` is maintained by the user. The repository root keeps only the reference resources, the local
   MCreator installation, the localized `caches/` folder, the verification workspaces, the user test workspace
   and the packaged archives in `build/`.
 - The Gradle wrapper inside `workspacebase` points at the local `参考资源/gradle-9.8.0-bin.zip` archive with a
@@ -157,6 +157,24 @@ block or item init classes. Three independent root causes were identified and fi
 - Replay of the Phase 1 user workspace: its sources, extended with the corrected templates, compiled without
   errors against the real Fabric 1.21.1 classpath.
 
+## Tier 2 Second Half
+Additional mixins deliver the second half of tier 2: shield blocking (LivingEntity#hurt with ``isDamageSourceBlocked``), hand switching (``setItemInHand`` off hand, approximate), waking up (``stopSleepInBed``), fishing retrieval (``FishingHook#retrieve``), hoe use (``HoeItem#useOn``), item use start/stop/finish (``startUsingItem``/``stopUsingItem``/``completeUsingItem``), experience change and level change (``giveExperiencePoints``/``giveExperienceLevels``), experience drop (``dropExperience``, amounts are reported as zero because the reward is computed after the hook), experience pickup (``ExperienceOrb#playerTouch``), item pickup (``ItemEntity#playerTouch``), item drop (``Player#drop``), explosions (``Explosion#finalizeExplosion`` with a shadowed level) and farmland trampling (``FarmBlock#fallOn``).
+''entity_blocks`` reports the incoming amount for both blocked amounts, ``entity_dropxp`` reports zero amounts and ``entity_switch_hand`` also fires when the off hand is set by other means; these are documented approximations.
+## Command And Advancement Triggers
+`command_executed` hooks `net.minecraft.commands.Commands#performCommand` and `player_completes_advancement` hooks `net.minecraft.server.PlayerAdvancements#award`; both classes are part of the client development classpath, unlike the class names guessed earlier.
+
+## Tier 3 Triggers
+The cancellable trigger infrastructure is in place: the trigger bus exposes ``eventResult``, the ``cancel event`` block sets it to false, the ``set event result`` block sets it from the configured result, and cancellable mixins read the result after the listeners run.
+Generated tier 3 triggers and their approximations:
+- ``crop_attempts_growth``: cancels ``CropBlock#growCrops`` when denied; forcing growth (ALLOW) is not possible, so ALLOW behaves like DEFAULT.
+- ``sapling_glow``: hooks ``TreeGrower#growTree`` so it only fires when a tree feature is actually about to grow (advancing the sapling stage no longer fires it); denying stops the growth.
+- ``entity_travels_to_dimension``: mixins both ``Entity#changeDimension`` and the ``ServerPlayer`` override, because players do not call the entity implementation; denying returns the current entity so the travel is skipped. The ``dimension`` dependency reports the current dimension, not the target one.
+- ``player_left_click_air`` and ``player_right_click_empty_hand``: client mixins on ``Minecraft#startAttack`` and ``Minecraft#startUseItem``; they notify the procedure but cannot cancel the client action.
+- ``player_critical_hit``: fires before ``Player#attack``, reports a computed vanilla critical flag and a 1.5 / 1.0 damage modifier, and denies by cancelling the attack; forcing a critical hit is not supported.
+## Mixin Trigger Batch
+Tier 2 mixins are generated through a shared trigger bus (``@JavaModNameTriggers`` in the ``trigger`` package) plus one mixin class per target. Implemented in this batch: ``block_place`` (BlockItem#place), ``item_crafted`` (ResultSlot#onTake), ``item_smelted`` (FurnaceResultSlot#onTake), ``item_destroyed`` (ItemStack#hurtAndBreak), ``entity_healed``, ``entity_falls``, ``entity_jumps`` and ``entity_uses_totem`` (LivingEntity), ``entity_struck_by_lightning`` (Entity#thunderHit), ``entity_tamed`` (TamableAnimal#tame), ``entity_sets_attack_target`` (Mob#setTarget), ``player_in_bed`` (Player#startSleepInBed), ``gem_expired`` (ItemEntity#tick) and ``entity_change_equipment`` which uses the Fabric entity equipment event instead of a mixin.
+``command_executed`` and ``player_completes_advancement`` are generated as placeholders: their target classes (CommandManager, PlayerAdvancements) are server only and are not part of the client compile classpath used by the workspace, so a mixin cannot be compiled against them in this setup.
+The mixin configuration uses ``defaultRequire: 0`` and every module is registered unconditionally, so an injection that does not match a runtime target is skipped instead of crashing the game.
 ## Generated Triggers
 The following triggers are generated with Fabric events or initializers, without any mixin: ``minecraft_world_loaded``, ``minecraft_world_unloaded``, ``mod_load``, ``mod_clientload``, ``mod_serverload``, ``block_break``, ``entity_dies``, ``entity_attacked``, ``entity_pre_hurt``, ``player_right_click_block``, ``player_right_click_item``, ``player_right_click_entity``, ``player_left_click_block``, ``bonemeal_used``, ``bucket_filled``, ``chat_sent``, ``player_log_in``, ``player_log_out``, ``player_respawn``, ``player_ticks``, ``entity_ticks``, ``world_ticks``, ``entity_joins_world``, ``entity_spawns``.
 Known semantic approximations: ``bonemeal_used`` is derived from block interaction plus the bonemealable check, ``entity_ticks`` iterates all loaded level entities once per level tick, ``entity_spawns`` uses the entity load event because spawn reasons are not exposed, and ``player_respawn`` always reports ``endconquered`` as false.
@@ -182,6 +200,8 @@ The procedure block set is complete against the neoforge-1.21.1 baseline; every 
 - Event control blocks (cancel event, set event result, set event parameter) depend on the NeoForge event bus; they are stubbed until the trigger batch.
 - Item handler slot blocks and item based inventories need the loader item handler API; item inventories are kept in memory only and do not persist.
 - Custom Java item renderers are not emitted; the generated class only states the limitation.
+## Unsupported Triggers
+The following triggers are intentionally not generated and are marked as unsupported for this release. Their procedure classes are not created, so procedures using these triggers will not compile: ``entity_grief`` (no generic mob griefing hook on Fabric, would require per entity mixins), ``block_multiplace`` (multi block placement event has no Fabric equivalent and conflicts with the block place trigger) and ``village_siege`` (the village siege AI state machine has no stable injection point and no Fabric event).
 ## Known Limitations
 - Custom OBJ models (``json/item_cmodel_obj`` and ``json/block_cmodel_obj``) are not rendered: the NeoForge OBJ loaders do not exist on Fabric 1.21.1, so these model templates produce no usable geometry.
 - Separate GUI textures (the per item "GUI texture" field) are not supported: they rely on the NeoForge ``separate_transforms`` model loader. Fabric generates a single texture for all display contexts.

@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+}
+
+group = 'net.mcreator.plugin'
+version = project.property('plugin_version')
+
+def mcreatorPath = project.findProperty('mcreator_path') ?: System.getenv('MCREATOR_PATH')
+if (mcreatorPath == null || mcreatorPath.toString().trim().isEmpty()) {
+    throw new GradleException('mcreator_path is not set. Set it in gradle.properties, pass -Pmcreator_path=<path> or define MCREATOR_PATH.')
+}
+def mcreatorLib = file("${mcreatorPath}/lib")
+if (!mcreatorLib.isDirectory()) {
+    throw new GradleException("MCreator lib directory not found: ${mcreatorLib}")
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation fileTree(dir: mcreatorLib, include: ['*.jar'])
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
+// The plugin itself is a plain zip: plugin.json and LICENSE at the archive root and the generator
+// definitions below fabric-1.21.1/. MCreator loads the archive as a generator plugin.
+tasks.register('buildPlugin', Zip) {
+    group = 'build'
+    description = 'Packages the generator plugin archive expected by MCreator.'
+    archiveFileName = 'generator-fabric-1.21.1.zip'
+    destinationDirectory = layout.buildDirectory.dir('dist')
+    from('plugin.json')
+    from('LICENSE')
+    from('src/main/resources') {
+        include 'fabric-1.21.1/**'
+    }
+}
+
+tasks.named('build') {
+    dependsOn 'buildPlugin'
+}

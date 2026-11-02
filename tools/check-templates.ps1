@@ -8,7 +8,7 @@ $repoRoot = Split-Path -Parent $pluginRoot
 
 $java = Join-Path $repoRoot 'MCreatorEAP2026344621\jdk\bin\java.exe'
 $lib = Join-Path $repoRoot 'MCreatorEAP2026344621\lib'
-$generator = Join-Path $pluginRoot 'fabric-1.21.1'
+$generator = Join-Path $pluginRoot 'src\main\resources\fabric-1.21.1'
 
 if (-not (Test-Path $java)) {
     throw "Bundled JDK not found: $java"

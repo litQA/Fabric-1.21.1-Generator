@@ -68,6 +68,58 @@ base_templates:
   - template: modbase/variableslist.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/network/@JavaModNameVariables.java"
     condition: hasVariables()
+  - template: modbase/triggersupport.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/trigger/@JavaModNameTriggers.java"
+  - template: mixin/BlockItemMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/BlockItemMixin.java"
+  - template: mixin/ResultSlotMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/ResultSlotMixin.java"
+  - template: mixin/FurnaceResultSlotMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/FurnaceResultSlotMixin.java"
+  - template: mixin/ItemStackMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/ItemStackMixin.java"
+  - template: mixin/LivingEntityMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/LivingEntityMixin.java"
+  - template: mixin/EntityThunderMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/EntityThunderMixin.java"
+  - template: mixin/TamableAnimalMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/TamableAnimalMixin.java"
+  - template: mixin/MobMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/MobMixin.java"
+  - template: mixin/PlayerSleepMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/PlayerSleepMixin.java"
+  - template: mixin/ItemEntityMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/ItemEntityMixin.java"
+  - template: mixin/PlayerEventsMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/PlayerEventsMixin.java"
+  - template: mixin/FishingHookMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/FishingHookMixin.java"
+  - template: mixin/HoeItemMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/HoeItemMixin.java"
+  - template: mixin/ExperienceOrbMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/ExperienceOrbMixin.java"
+  - template: mixin/ExplosionMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/ExplosionMixin.java"
+  - template: mixin/FarmBlockMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/FarmBlockMixin.java"
+  - template: mixin/CropGrowthMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/CropGrowthMixin.java"
+  - template: mixin/SaplingGrowthMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/SaplingGrowthMixin.java"
+  - template: mixin/EntityDimensionMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/EntityDimensionMixin.java"
+  - template: mixin/PlayerCriticalMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/PlayerCriticalMixin.java"
+  - template: mixin/MinecraftAttackMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/MinecraftAttackMixin.java"
+  - template: mixin/MinecraftUseItemMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/MinecraftUseItemMixin.java"
+  - template: mixin/ServerPlayerDimensionMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/ServerPlayerDimensionMixin.java"
+  - template: mixin/PlayerAdvancementsMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/PlayerAdvancementsMixin.java"
+  - template: mixin/CommandManagerMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/CommandManagerMixin.java"
   - template: modbase/mod_client.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/@JavaModNameClient.java"
   - template: modbase/fabric.mod.json.ftl
