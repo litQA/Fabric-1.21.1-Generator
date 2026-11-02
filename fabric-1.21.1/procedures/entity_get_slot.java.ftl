@@ -1,0 +1,1 @@
+/*@ItemStack*/(${input$entity} instanceof Player _playerSlot ? _playerSlot.getInventory().getItem(${opt.toInt(input$slotid)}).copy() : ItemStack.EMPTY /* Fabric: only player inventories are accessible, see MIGRATION-REPORT.md */)

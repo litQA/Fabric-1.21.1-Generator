@@ -1,0 +1,266 @@
+<#-- @formatter:off -->
+<#include "../procedures.java.ftl">
+
+package ${package}.block.entity;
+
+<@javacompress>
+public class ${name}BlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer
+		<#if data.sensitiveToVibration>, GameEventListener.Provider<VibrationSystem.Listener>, VibrationSystem</#if> {
+
+	private NonNullList<ItemStack> stacks = NonNullList.withSize(${data.inventorySize}, ItemStack.EMPTY);
+
+	<#if data.sensitiveToVibration>
+	private final VibrationSystem.Listener vibrationListener = new VibrationSystem.Listener(this);
+	private final VibrationSystem.User vibrationUser = new VibrationUser(this.getBlockPos());
+	private VibrationSystem.Data vibrationData = new VibrationSystem.Data();
+	</#if>
+
+	<#if data.renderType() == 4>
+		<#list data.animations as animation>
+		public final AnimationState animationState${animation?index} = new AnimationState();
+		</#list>
+
+		private long tickCountStart = -1;
+	</#if>
+
+	public ${name}BlockEntity(BlockPos position, BlockState state) {
+		super(${JavaModName}BlockEntities.${REGISTRYNAME}, position, state);
+	}
+
+	<#if data.renderType() == 4>
+	public int getTickCount() {
+		long gameTime = this.level.getGameTime();
+		if (this.tickCountStart == -1)
+			this.tickCountStart = gameTime;
+		return (int) (gameTime - this.tickCountStart);
+	}
+	</#if>
+
+	@Override public void loadAdditional(CompoundTag compound, HolderLookup.Provider lookupProvider) {
+		super.loadAdditional(compound, lookupProvider);
+
+		if (!this.tryLoadLootTable(compound))
+			this.stacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+
+		ContainerHelper.loadAllItems(compound, this.stacks, lookupProvider);
+
+		<#if data.sensitiveToVibration>
+		if (compound.contains("listener", 10)) {
+			VibrationSystem.Data.CODEC.parse(lookupProvider.createSerializationContext(NbtOps.INSTANCE), compound.getCompound("listener"))
+					.resultOrPartial(e -> ${JavaModName}.LOGGER.error("Failed to parse vibration listener for ${data.name}: '{}'", e))
+					.ifPresent(data -> this.vibrationData = data);
+		}
+		</#if>
+	}
+
+	@Override public void saveAdditional(CompoundTag compound, HolderLookup.Provider lookupProvider) {
+		super.saveAdditional(compound, lookupProvider);
+
+		if (!this.trySaveLootTable(compound)) {
+			ContainerHelper.saveAllItems(compound, this.stacks, lookupProvider);
+		}
+
+		<#if data.sensitiveToVibration>
+		VibrationSystem.Data.CODEC.encodeStart(lookupProvider.createSerializationContext(NbtOps.INSTANCE), this.vibrationData)
+				.resultOrPartial(e -> ${JavaModName}.LOGGER.error("Failed to encode vibration listener for ${data.name}: '{}'", e))
+				.ifPresent(listener -> compound.put("listener", listener));
+		</#if>
+
+		<#if data.hasEnergyStorage>
+		<#-- Energy storage is not available on Fabric in this phase, see MIGRATION-REPORT.md -->
+		</#if>
+
+		<#if data.isFluidTank>
+		<#-- Fluid tanks are not available on Fabric in this phase, see MIGRATION-REPORT.md -->
+		</#if>
+	}
+
+	@Override public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
+
+	@Override public CompoundTag getUpdateTag(HolderLookup.Provider lookupProvider) {
+		return this.saveWithFullMetadata(lookupProvider);
+	}
+
+	@Override public int getContainerSize() {
+		return stacks.size();
+	}
+
+	@Override public boolean isEmpty() {
+		for (ItemStack itemstack : this.stacks)
+			if (!itemstack.isEmpty())
+				return false;
+		return true;
+	}
+
+	@Override public Component getDefaultName() {
+		return Component.literal("${registryname}");
+	}
+
+	<#if data.inventoryStackSize != 99>
+	@Override public int getMaxStackSize() {
+		return ${data.inventoryStackSize};
+	}
+	</#if>
+
+	@Override protected AbstractContainerMenu createMenu(int id, Inventory inventory) {
+		<#if !data.guiBoundTo?has_content>
+		return ChestMenu.threeRows(id, inventory);
+		<#else>
+		return new ${data.guiBoundTo}Menu(id, inventory, this, new FriendlyByteBuf(Unpooled.buffer()).writeBlockPos(this.worldPosition));
+		</#if>
+	}
+
+	@Override public Component getDisplayName() {
+		return Component.literal("${data.name}");
+	}
+
+	@Override protected NonNullList<ItemStack> getItems() {
+		return this.stacks;
+	}
+
+	@Override protected void setItems(NonNullList<ItemStack> stacks) {
+		this.stacks = stacks;
+	}
+
+	@Override public boolean canPlaceItem(int index, ItemStack stack) {
+		<#list data.inventoryOutSlotIDs as id>
+		if (index == ${id})
+			return false;
+		</#list>
+		return true;
+	}
+
+	<#-- START: WorldlyContainer -->
+	@Override public int[] getSlotsForFace(Direction side) {
+		return IntStream.range(0, this.getContainerSize()).toArray();
+	}
+
+	@Override public boolean canPlaceItemThroughFace(int index, ItemStack itemstack, @Nullable Direction direction) {
+		<#-- Vanilla automation (hoppers, droppers, crafters) only checks item max stack size when merging into a slot, not inventory slot stack size -->
+		if (this.getItem(index).getCount() >= this.getMaxStackSize(itemstack))
+			return false;
+		return this.canPlaceItem(index, itemstack)
+		<#if hasProcedure(data.inventoryAutomationPlaceCondition)>&&
+			<@procedureCode data.inventoryAutomationPlaceCondition, {
+				"index": "index",
+				"itemstack": "itemstack",
+				"direction": "direction"
+			}, false/>
+		</#if>;
+	}
+
+	@Override public boolean canTakeItemThroughFace(int index, ItemStack itemstack, Direction direction) {
+		<#list data.inventoryInSlotIDs as id>
+		if (index == ${id})
+			return false;
+		</#list>
+		<#if hasProcedure(data.inventoryAutomationTakeCondition)>
+			return <@procedureCode data.inventoryAutomationTakeCondition, {
+				"index": "index",
+				"itemstack": "itemstack",
+				"direction": "direction"
+			}, false/>;
+		<#else>
+			return true;
+		</#if>
+	}
+	<#-- END: WorldlyContainer -->
+
+	<#if data.sensitiveToVibration>
+	@Override public VibrationSystem.Data getVibrationData() {
+		return this.vibrationData;
+	}
+
+	@Override public VibrationSystem.User getVibrationUser() {
+		return this.vibrationUser;
+	}
+
+	@Override public VibrationSystem.Listener getListener() {
+		return this.vibrationListener;
+	}
+
+	private class VibrationUser implements VibrationSystem.User {
+
+		private final int x;
+		private final int y;
+		private final int z;
+		private final PositionSource positionSource;
+
+		public VibrationUser(BlockPos blockPos) {
+			this.x = blockPos.getX();
+			this.y = blockPos.getY();
+			this.z = blockPos.getZ();
+			this.positionSource = new BlockPositionSource(blockPos);
+		}
+
+		@Override public PositionSource getPositionSource() {
+			return this.positionSource;
+		}
+
+		<#if data.vibrationalEvents?has_content>
+		@Override public TagKey<GameEvent> getListenableEvents() {
+			return net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.GAME_EVENT, ResourceLocation.withDefaultNamespace("${registryname}_can_listen"));
+		}
+		</#if>
+
+		@Override public int getListenerRadius() {
+			<#if hasProcedure(data.vibrationSensitivityRadius)>
+				Level world = ${name}BlockEntity.this.getLevel();
+				BlockState blockstate = ${name}BlockEntity.this.getBlockState();
+				return (int) <@procedureOBJToNumberCode data.vibrationSensitivityRadius/>;
+			<#else>
+				return ${data.vibrationSensitivityRadius.getFixedValue()};
+			</#if>
+		}
+
+		@Override public boolean canReceiveVibration(ServerLevel world, BlockPos vibrationPos, Holder<GameEvent> holder, GameEvent.Context context) {
+			<#if hasProcedure(data.canReceiveVibrationCondition)>
+				return <@procedureCode data.canReceiveVibrationCondition {
+					"x": "x",
+					"y": "y",
+					"z": "z",
+					"vibrationX": "vibrationPos.getX()",
+					"vibrationY": "vibrationPos.getY()",
+					"vibrationZ": "vibrationPos.getZ()",
+					"world": "world",
+					"entity": "context.sourceEntity()",
+					"blockstate": "${name}BlockEntity.this.getBlockState()"
+				}/>
+			<#else>
+				return true;
+			</#if>
+		}
+
+		@Override public void onReceiveVibration(ServerLevel world, BlockPos vibrationPos, Holder<GameEvent> holder, Entity entity, Entity projectileShooter, float distance) {
+			<#if hasProcedure(data.onReceivedVibration)>
+				<@procedureCode data.onReceivedVibration {
+					"x": "x",
+					"y": "y",
+					"z": "z",
+					"vibrationX": "vibrationPos.getX()",
+					"vibrationY": "vibrationPos.getY()",
+					"vibrationZ": "vibrationPos.getZ()",
+					"world": "world",
+					"blockstate": "${name}BlockEntity.this.getBlockState()",
+					"entity": "entity",
+					"sourceentity": "projectileShooter",
+					"distance": "distance"
+				}/>
+			</#if>
+		}
+
+		@Override public void onDataChanged() {
+			${name}BlockEntity.this.setChanged();
+		}
+
+		@Override public boolean requiresAdjacentChunksToBeTicking() {
+			return true;
+		}
+	}
+	</#if>
+}
+</@javacompress>
+<#-- @formatter:on -->
+
