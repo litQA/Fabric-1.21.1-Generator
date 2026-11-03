@@ -549,10 +549,6 @@ public class ${name}Entity extends ${extendsClass} <#if interfaces?size gt 0>imp
 							return new ${data.guiBoundTo}Menu(id, inventory, packetBuffer);
 						}
 
-					}, buf -> {
-						buf.writeBlockPos(sourceentity.blockPosition());
-						buf.writeByte(0);
-						buf.writeVarInt(this.getId());
 					});
 				}
 			<#if data.ridable>

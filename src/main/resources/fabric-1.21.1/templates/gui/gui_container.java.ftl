@@ -343,13 +343,15 @@ public class ${name}Menu extends AbstractContainerMenu implements ${JavaModName}
 		</#if>
 
 		<#if hasProcedure(data.onTick)>
-			PlayerEvents.END_PLAYER_TICK.register(entity -> {
-				if (entity.containerMenu instanceof ${name}Menu menu) {
-					Level world = menu.world;
-					double x = menu.x;
-					double y = menu.y;
-					double z = menu.z;
-					<@procedureOBJToCode data.onTick/>
+			net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(server -> {
+				for (net.minecraft.server.level.ServerPlayer entity : server.getPlayerList().getPlayers()) {
+					if (entity.containerMenu instanceof ${name}Menu menu) {
+						Level world = menu.world;
+						double x = menu.x;
+						double y = menu.y;
+						double z = menu.z;
+						<@procedureOBJToCode data.onTick/>
+					}
 				}
 			});
 		</#if>

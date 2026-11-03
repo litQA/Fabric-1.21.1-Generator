@@ -113,11 +113,7 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 		);
 	}
 
-	<#if (data.usageCount == 0) && (data.toolType == "Pickaxe" || data.toolType == "Axe" || data.toolType == "Sword" || data.toolType == "Spade" || data.toolType == "Hoe" || data.toolType == "MultiTool")>
-	@SubscribeEvent public static void handleToolDamage(ModifyDefaultComponentsEvent event) {
-		event.modify(${JavaModName}Items.${REGISTRYNAME}.get(), builder -> builder.remove(DataComponents.MAX_DAMAGE));
-	}
-	</#if>
+	<#-- A zero usage count means the item is created without the durability component, so it is unbreakable on Fabric -->
 
 	<#if hasProcedure(data.additionalDropCondition) && data.toolType!="MultiTool">
 	@Override public boolean isCorrectToolForDrops(ItemStack itemstack, BlockState blockstate) {

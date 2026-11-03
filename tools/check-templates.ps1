@@ -70,7 +70,30 @@ if ($errors.Count -ne 0) {
 
 
 Write-Host 'Checking loader specific APIs are not used...'
-$forbidden = @('BlockTags.create(', 'ItemTags.create(', 'getUnsidedLevel', 'FakePlayerFactory', 'getBuildContext', 'net.neoforged', '@EventBusSubscriber')
+# Loader specific APIs of the NeoForge generator. None of these may survive in the Fabric generator.
+$forbidden = @(
+    'net.neoforged', '@EventBusSubscriber', '@SubscribeEvent', '@Mod(',
+    'DeferredRegister', 'DeferredHolder', 'DeferredItem', 'DeferredBlock',
+    'ILevelExtension', 'IItemHandler', 'IFluidHandler', 'IEnergyStorage', 'Capability',
+    'getUnsidedLevel', 'FakePlayerFactory', 'getBuildContext', 'getCommandSelection',
+    'BlockTags.create(', 'ItemTags.create(',
+    'shouldTriggerClientSideContainerClosingOnOpen',
+    'FMLCommonSetupEvent', 'FMLClientSetupEvent', 'FMLDedicatedServerSetupEvent',
+    'RegisterCommandsEvent', 'RegisterClientCommandsEvent',
+    'PlayerInteractEvent', 'LivingIncomingDamageEvent', 'LivingDeathEvent',
+    'LivingDamageEvent', 'LivingHealEvent', 'LivingFallEvent', 'LivingJumpEvent',
+    'LivingEquipmentChangeEvent', 'LivingSwapItemsEvent', 'LivingChangeTargetEvent',
+    'LivingUseTotemEvent', 'LivingShieldBlockEvent', 'EntityJoinLevelEvent',
+    'EntityTickEvent', 'LevelTickEvent', 'PlayerTickEvent', 'PlayerEvent.',
+    'ServerChatEvent', 'CommandEvent', 'CropGrowEvent', 'BonemealEvent',
+    'BlockEvent.', 'ExplosionEvent', 'ItemTossEvent', 'ItemExpireEvent',
+    'ItemEntityPickupEvent', 'PlayerXpEvent', 'AdvancementEvent',
+    'AnimalTameEvent', 'PlayerDestroyItemEvent', 'CriticalHitEvent',
+    'EntityTravelToDimensionEvent', 'BlockGrowFeatureEvent', 'VillageSiegeEvent',
+    'EntityStruckByLightningEvent', 'ItemFishedEvent', 'CanPlayerSleepEvent',
+    'PlayerWakeUpEvent', 'EntityMobGriefingEvent', 'LivingExperienceDropEvent',
+    'PacketDistributor', 'CustomPacketPayload.Type<>()', 'IPayloadContext'
+)
 $apiErrors = @()
 Get-ChildItem $generator -Recurse -File | Where-Object { $_.Extension -in '.ftl', '.yaml' } | ForEach-Object {
     $text = [System.IO.File]::ReadAllText($_.FullName)
@@ -96,6 +119,20 @@ Get-ChildItem $generator -Recurse -File -Filter *.ftl | ForEach-Object {
 if ($stray.Count -ne 0) {
     $stray | ForEach-Object { Write-Host "  FAIL stray backtick in $_" }
     throw 'Template character check failed'
+}
+
+
+Write-Host 'Checking menu opening calls...'
+$menuErrors = @()
+Get-ChildItem $generator -Recurse -File -Filter *.ftl | ForEach-Object {
+    $text = [System.IO.File]::ReadAllText($_.FullName)
+    if ($text -match 'openMenu\([^)]*,[^)]*\)') {
+        $menuErrors += "$($_.FullName.Substring($generator.Length + 1)) passes extra arguments to openMenu"
+    }
+}
+if ($menuErrors.Count -ne 0) {
+    $menuErrors | ForEach-Object { Write-Host "  FAIL $_" }
+    throw 'Menu opening check failed'
 }
 
 Write-Host 'Template and definition checks passed.'

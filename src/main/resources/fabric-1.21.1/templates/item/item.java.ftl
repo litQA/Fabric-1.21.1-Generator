@@ -210,9 +210,6 @@ public class ${name}Item extends <#if data.hasBannerPatterns()>BannerPattern</#i
 					packetBuffer.writeByte(hand == InteractionHand.MAIN_HAND ? 0 : 1);
 					return new ${data.guiBoundTo}Menu(id, inventory, packetBuffer);
 				}
-			}, buf -> {
-				buf.writeBlockPos(entity.blockPosition());
-				buf.writeByte(hand == InteractionHand.MAIN_HAND ? 0 : 1);
 			});
 			<#if hasProcedure(data.openGUIOnRightClick)>}</#if>
 		}
