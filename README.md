@@ -1,5 +1,4 @@
-<img width="1000" alt="fabric generator banner 1 21" src="https://github.com/user-attachments/assets/ede180da-3b3f-4b21-a90c-a43a59555071" />
-
+<img width="1000" alt="fabric generator banner 1 21 1" src="https://github.com/user-attachments/assets/9e82a98d-1d8a-4565-8678-bee1d2e14ff2" />
 
 # Fabric 1.21.1 Generator for MCreator
 
