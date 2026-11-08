@@ -14,6 +14,14 @@ if (!mcreatorLib.isDirectory()) {
     throw new GradleException("MCreator lib directory not found: ${mcreatorLib}")
 }
 
+
+// The version has a single source: plugin_version in gradle.properties. plugin.json must match it.
+def pluginJsonFile = file('plugin.json')
+def pluginJsonVersion = new groovy.json.JsonSlurper().parseText(pluginJsonFile.text).info.version
+if (pluginJsonVersion != project.property('plugin_version').toString()) {
+    throw new GradleException("plugin.json version (${pluginJsonVersion}) does not match plugin_version (${project.property('plugin_version')}).")
+}
+
 repositories {
     mavenCentral()
 }

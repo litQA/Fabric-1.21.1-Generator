@@ -203,6 +203,7 @@ The procedure block set is complete against the neoforge-1.21.1 baseline; every 
 ## Unsupported Triggers
 The following triggers are intentionally not generated and are marked as unsupported for this release. Their procedure classes are not created, so procedures using these triggers will not compile: ``entity_grief`` (no generic mob griefing hook on Fabric, would require per entity mixins), ``block_multiplace`` (multi block placement event has no Fabric equivalent and conflicts with the block place trigger) and ``village_siege`` (the village siege AI state machine has no stable injection point and no Fabric event).
 ## Known Limitations
+- Tool crafting remainder behaviour (stay in grid when crafting and damage on crafting) is not generated: 1.21.1 makes the crafting remainder component based and `Item#getCraftingRemainingItem()` final.
 - Custom OBJ models (``json/item_cmodel_obj`` and ``json/block_cmodel_obj``) are not rendered: the NeoForge OBJ loaders do not exist on Fabric 1.21.1, so these model templates produce no usable geometry.
 - Separate GUI textures (the per item "GUI texture" field) are not supported: they rely on the NeoForge ``separate_transforms`` model loader. Fabric generates a single texture for all display contexts.
 - Fluid buckets do not render the contained fluid dynamically: without an explicit bucket texture the generated model falls back to the vanilla bucket icon, because Fabric has no equivalent of the NeoForge ``fluid_container`` model loader.

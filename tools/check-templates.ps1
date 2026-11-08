@@ -135,5 +135,21 @@ if ($menuErrors.Count -ne 0) {
     throw 'Menu opening check failed'
 }
 
+
+Write-Host 'Checking particle type accessors...'
+$particleErrors = @()
+Get-ChildItem $generator -Recurse -File | Where-Object { $_.Extension -in '.ftl', '.yaml' } | ForEach-Object {
+    $lines = [System.IO.File]::ReadAllLines($_.FullName)
+    for ($i = 0; $i -lt $lines.Length; $i++) {
+        if ($lines[$i] -match 'ParticleTypes\.\w+\.get\(') {
+            $particleErrors += "$($_.FullName.Substring($generator.Length + 1)):$($i + 1) appends a loader accessor to a particle type"
+        }
+    }
+}
+if ($particleErrors.Count -ne 0) {
+    $particleErrors | ForEach-Object { Write-Host "  FAIL $_" }
+    throw 'Particle accessor check failed'
+}
+
 Write-Host 'Template and definition checks passed.'
 

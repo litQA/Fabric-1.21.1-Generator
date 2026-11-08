@@ -1,6 +1,14 @@
 # Changelog
 
-Versioning: the patch component of the version is incremented by one for every change unless stated otherwise.
+Version format: `MAJOR.MINOR.PATCH.BUILD-TYPE`. The patch number is incremented once per session and the build number is incremented for every build; neither is ever reset.
+
+## 1.0.2.83-beta
+
+### Fixes
+- Variables classes now always generate `loadClient()`, so a workspace that only uses player scoped variables no longer fails to compile the client initializer. The sync payload is registered whenever world, map or player scopes exist, because player variables use the same sync message.
+- Custom particles are mapped without the loader accessor, so spawning a custom particle resolves to the particle type constant itself.
+- Tools no longer generate the crafting remainder overrides: 1.21.1 makes the crafting remainder component based and `getCraftingRemainingItem()` final, so "stay in grid when crafting" and "damage on crafting" are not generated and are documented as a limitation.
+- The template checker now also rejects loader accessor calls on particle types.
 
 ## 1.0.1-beta
 

@@ -313,36 +313,7 @@ public class ${name}Item extends FishingRodItem {
 </#macro>
 
 <#macro commonMethods>
-	<#if data.stayInGridWhenCrafting>
-		@Override public boolean hasCraftingRemainingItem(ItemStack stack) {
-			return true;
-		}
-
-		<#if data.damageOnCrafting && data.usageCount != 0>
-			@Override public ItemStack getCraftingRemainingItem(ItemStack itemstack) {
-				ItemStack retval = new ItemStack(this);
-				retval.setDamageValue(itemstack.getDamageValue() + 1);
-				if(retval.getDamageValue() >= retval.getMaxDamage()) {
-					return ItemStack.EMPTY;
-				}
-				return retval;
-			}
-
-			@Override public boolean isRepairable(ItemStack itemstack) {
-				return false;
-			}
-		<#else>
-			@Override public ItemStack getCraftingRemainingItem(ItemStack itemstack) {
-				return new ItemStack(this);
-			}
-
-			<#if data.usageCount != 0>
-				@Override public boolean isRepairable(ItemStack itemstack) {
-					return false;
-				}
-			</#if>
-		</#if>
-	</#if>
+	<#-- Fabric 1.21.1 makes the crafting remainder component based and final, so stay in grid and damage on crafting are not generated, see MIGRATION-REPORT.md -->
 
 	<@addSpecialInformation data.specialInformation, "item." + modid + "." + registryname/>
 
