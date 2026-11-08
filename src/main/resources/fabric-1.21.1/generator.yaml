@@ -120,6 +120,10 @@ base_templates:
     name: "@SRCROOT/@BASEPACKAGEPATH/mixin/PlayerAdvancementsMixin.java"
   - template: mixin/CommandManagerMixin.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/mixin/CommandManagerMixin.java"
+  - template: item/craftingremaindersetter.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/item/CraftingRemainderSetter.java"
+  - template: mixin/ItemCraftingRemainderMixin.java.ftl
+    name: "@SRCROOT/@BASEPACKAGEPATH/mixin/ItemCraftingRemainderMixin.java"
   - template: modbase/mod_client.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/@JavaModNameClient.java"
   - template: modbase/fabric.mod.json.ftl

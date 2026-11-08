@@ -111,6 +111,9 @@ public class ${name}Item extends ${data.toolType?replace("Spade", "Shovel")?repl
 				.fireResistant()
 				</#if>
 		);
+		<#if data.stayInGridWhenCrafting>
+		((CraftingRemainderSetter) this).mcreatorSetCraftingRemainder(this);
+		</#if>
 	}
 
 	<#-- A zero usage count means the item is created without the durability component, so it is unbreakable on Fabric -->
@@ -215,6 +218,9 @@ public class ${name}Item extends Item {
 			</#if>
 			.attributes(<@itemAttributeModifiers true/>)
 		);
+		<#if data.stayInGridWhenCrafting>
+		((CraftingRemainderSetter) this).mcreatorSetCraftingRemainder(this);
+		</#if>
 	}
 
 	@Override public float getDestroySpeed(ItemStack itemstack, BlockState blockstate) {
@@ -259,6 +265,9 @@ public class ${name}Item extends FishingRodItem {
 			.attributes(<@itemAttributeModifiers/>)
 			</#if>
 		);
+		<#if data.stayInGridWhenCrafting>
+		((CraftingRemainderSetter) this).mcreatorSetCraftingRemainder(this);
+		</#if>
 	}
 
 	<#if data.repairItems?has_content>

@@ -2,6 +2,16 @@
 
 Version format: `MAJOR.MINOR.PATCH.BUILD-TYPE`. The patch number is incremented once per session and the build number is incremented for every build; neither is ever reset.
 
+## 1.0.3.84-beta
+
+### New Content
+- Tools that stay in the crafting grid when crafting are generated again: the item points its vanilla crafting remainder at itself through a small generated accessor interface and a mixin that allows writing the final remainder field.
+
+### Changes
+- The damage on crafting checkbox is hidden for tools, because Fabric 1.21.1 makes the crafting remainder component based and the damage variant is not implemented; the migration report documents the limitation.
+
+### Fixes
+- None.
 ## 1.0.2.83-beta
 
 ### Fixes

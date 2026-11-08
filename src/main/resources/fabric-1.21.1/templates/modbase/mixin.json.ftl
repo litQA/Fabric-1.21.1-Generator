@@ -6,7 +6,7 @@
 <#assign clientMixins = clientMixins + ["MinecraftAttackMixin","MinecraftUseItemMixin"]>
 <#if w.hasElementsOfType('attribute')><#assign mixins = mixins + ['AttributeSupplierAccessor']></#if>
 <#if w.getGElementsOfType('biome')?filter(e -> e.spawnBiome || e.spawnInCaves || e.spawnBiomeNether)?size != 0><#assign mixins = mixins + ['BiomeSourcePresetMixin', 'NoiseGeneratorSettingsMixin']></#if>
-<#assign mixins = mixins + ['BlockItemMixin','ResultSlotMixin','FurnaceResultSlotMixin','ItemStackMixin','LivingEntityMixin','EntityThunderMixin','TamableAnimalMixin','MobMixin','PlayerSleepMixin','ItemEntityMixin','PlayerEventsMixin','FishingHookMixin','HoeItemMixin','ExperienceOrbMixin','ExplosionMixin','FarmBlockMixin','CropGrowthMixin','SaplingGrowthMixin','EntityDimensionMixin','ServerPlayerDimensionMixin','PlayerCriticalMixin','PlayerAdvancementsMixin','CommandManagerMixin']>
+<#assign mixins = mixins + ['BlockItemMixin','ResultSlotMixin','FurnaceResultSlotMixin','ItemStackMixin','LivingEntityMixin','EntityThunderMixin','TamableAnimalMixin','MobMixin','PlayerSleepMixin','ItemEntityMixin','PlayerEventsMixin','FishingHookMixin','HoeItemMixin','ExperienceOrbMixin','ExplosionMixin','FarmBlockMixin','CropGrowthMixin','SaplingGrowthMixin','EntityDimensionMixin','ServerPlayerDimensionMixin','PlayerCriticalMixin','PlayerAdvancementsMixin','CommandManagerMixin','ItemCraftingRemainderMixin']>
 {
   "required": true,
   "package": "${package}.mixin",

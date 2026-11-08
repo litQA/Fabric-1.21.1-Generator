@@ -56,4 +56,6 @@ localizationkeys:
   - fromlist: data.getFixedSpecialInformation()
     key: item.@modid.@registryname.description_@item_index
 
-
+# Damage on crafting is not supported on Fabric 1.21.1 (the crafting remainder is a final component),
+# so the checkbox is hidden instead of offering a setting that has no effect.
+field_exclusions: [damageOnCrafting]
