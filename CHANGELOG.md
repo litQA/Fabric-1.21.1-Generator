@@ -2,6 +2,13 @@
 
 Version format: `MAJOR.MINOR.PATCH.BUILD-TYPE`. The patch number is incremented once per session and the build number is incremented for every build; neither is ever reset.
 
+## 1.0.4.85-beta
+
+### Changes
+- The generated workspace Gradle wrapper file now marks its QA-local hardcoded distribution path as non-portable and documents how to restore the standard Gradle distribution URL. This only affects plugin development workspaces, not generated mod workspaces.
+
+### Fixes
+- None.
 ## 1.0.3.84-beta
 
 ### New Content
