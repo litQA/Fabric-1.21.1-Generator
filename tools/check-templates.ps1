@@ -151,5 +151,16 @@ if ($particleErrors.Count -ne 0) {
     throw 'Particle accessor check failed'
 }
 
+
+Write-Host 'Checking generated workspace files are portable...'
+$wrapper = Join-Path $generator 'workspacebase\gradle\wrapper\gradle-wrapper.properties'
+if (Test-Path $wrapper) {
+    $wrapperText = [System.IO.File]::ReadAllText($wrapper)
+    if ($wrapperText -match '(?m)^distributionUrl=file:') {
+        Write-Host "  FAIL workspacebase wrapper uses a local file distribution URL"
+        throw 'Workspace portability check failed'
+    }
+}
+
 Write-Host 'Template and definition checks passed.'
 

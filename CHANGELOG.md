@@ -2,6 +2,14 @@
 
 Version format: `MAJOR.MINOR.PATCH.BUILD-TYPE`. The patch number is incremented once per session and the build number is incremented for every build; neither is ever reset.
 
+## 1.0.5.86-beta
+
+### Changes
+- Generated workspaces now use the standard portable Gradle distribution URL (`https://services.gradle.org/distributions/gradle-9.8.0-bin.zip`) instead of a QA-local absolute path. Offline development should pre-seed the Gradle wrapper cache instead of editing generated workspace files.
+- The repository Gradle cache contains a pre-seeded wrapper distribution for the standard URL, so wrapper based builds can run offline from this repository.
+
+### Fixes
+- None.
 ## 1.0.4.85-beta
 
 ### Changes
