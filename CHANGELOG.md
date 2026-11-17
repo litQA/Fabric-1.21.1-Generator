@@ -7,6 +7,7 @@ Version format: `MAJOR.MINOR.PATCH.BUILD-TYPE`. The patch number is incremented 
 ### Changes
 - Documentation is desensitized: no changelog or migration report entry names a private local workspace, a machine path or a personal folder. Validation entries only refer to a test workspace.
 - The migration report now describes the portable Gradle wrapper and the repository layout without machine specific paths.
+- The delivery specification document uses placeholders (`<项目根目录>`, `<用户主目录>`) instead of machine specific absolute paths.
 
 ### Fixes
 - None.
