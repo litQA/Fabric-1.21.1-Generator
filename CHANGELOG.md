@@ -2,10 +2,19 @@
 
 Version format: `MAJOR.MINOR.PATCH.BUILD-TYPE`. The patch number is incremented once per session and the build number is incremented for every build; neither is ever reset.
 
+## 1.0.6.88-beta
+
+### Changes
+- Documentation is desensitized: no changelog or migration report entry names a private local workspace, a machine path or a personal folder. Validation entries only refer to a test workspace.
+- The migration report now describes the portable Gradle wrapper and the repository layout without machine specific paths.
+
+### Fixes
+- None.
+
 ## 1.0.5.86-beta
 
 ### Changes
-- Generated workspaces now use the standard portable Gradle distribution URL (`https://services.gradle.org/distributions/gradle-9.8.0-bin.zip`) instead of a QA-local absolute path. Offline development should pre-seed the Gradle wrapper cache instead of editing generated workspace files.
+- Generated workspaces now use the standard portable Gradle distribution URL (`https://services.gradle.org/distributions/gradle-9.8.0-bin.zip`) instead of a local absolute path. Offline development should pre-seed the Gradle wrapper cache instead of editing generated workspace files.
 - The repository Gradle cache contains a pre-seeded wrapper distribution for the standard URL, so wrapper based builds can run offline from this repository.
 
 ### Fixes
@@ -13,7 +22,7 @@ Version format: `MAJOR.MINOR.PATCH.BUILD-TYPE`. The patch number is incremented 
 ## 1.0.4.85-beta
 
 ### Changes
-- The generated workspace Gradle wrapper file now marks its QA-local hardcoded distribution path as non-portable and documents how to restore the standard Gradle distribution URL. This only affects plugin development workspaces, not generated mod workspaces.
+- The generated workspace Gradle wrapper file now marks its hardcoded local distribution path as non-portable and documents how to restore the standard Gradle distribution URL. This only affects plugin development workspaces, not generated mod workspaces.
 
 ### Fixes
 - None.

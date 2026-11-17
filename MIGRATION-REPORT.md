@@ -10,12 +10,11 @@ every feature that is knowingly not available yet.
 - Target: Minecraft 1.21.1, Fabric Loader 0.20.1, Fabric API 0.116.17, Java 21 bytecode (JDK 25 toolchain),
   Fabric Loom 1.15.5 and the locally provided Gradle 9.8.0 distribution.
 - The plugin project lives in `plugin/` (a Gradle project: `build.gradle`, `settings.gradle`, `gradle.properties`). Generator sources are under `plugin/src/main/resources/fabric-1.21.1/`; `plugin.json`, `LICENSE` and `CHANGELOG.md` stay at the plugin root. `README.md` is maintained by the user. The repository root keeps only the reference resources, the local
-  MCreator installation, the localized `caches/` folder, the verification workspaces, the user test workspace
-  and the packaged archives in `build/`.
-- The Gradle wrapper inside `workspacebase` points at the local `参考资源/gradle-9.8.0-bin.zip` archive with a
-  `file:` distribution URL. The non ASCII directory name is percent encoded, because the Gradle wrapper builds a
-  `java.net.URI` from the property and rejects raw non ASCII characters; the encoded URL targets the same local
-  file and never performs a network download. The wrapper was verified with Gradle 9.8.0.
+  MCreator installation, the localized `caches/` folder, the test workspaces and the packaged archives in `build/`.
+- The Gradle wrapper inside `workspacebase` uses the standard portable distribution URL
+  `https://services.gradle.org/distributions/gradle-9.8.0-bin.zip`, so generated workspaces build on any machine.
+  Offline environments pre-seed the Gradle wrapper cache for that URL instead of editing the generated workspace
+  files. The build check rejects a `file:` distribution URL in `workspacebase`.
 - The generator imports `datapack-1.21.1` (shared data driven templates such as `pack.mcmeta`, tags and loot
   tables) and `neoforge-1.21.1` with `procedures` and `triggers` excluded. Every NeoForge template that can emit
   loader specific code for the supported element set is overridden by this generator.
@@ -128,7 +127,7 @@ yet: energy storage, fluid tanks, block inventories, block and entity NBT, item 
 dimension portal creation, the enchanting power bonus block value and the item bucket/fluid conversions.
 
 ## Corrections Applied After The Phase 1 Real-Device Test
-The first user test workspace (`用户测试/fabric1211`) reported `cannot find symbol: class Logger` and produced no
+An early test workspace reported `cannot find symbol: class Logger` and produced no
 block or item init classes. Three independent root causes were identified and fixed:
 
 1. **Global templates are not inherited.** MCreator reads the `global_templates` declarations of the generator
@@ -147,14 +146,14 @@ block or item init classes. Three independent root causes were identified and fi
 - Definitions: all 5 shipped `.yaml` files load with the YAML engine MCreator uses.
 - Include resolution: every `<#include>` and `<@addTemplate>` of the shipped templates resolves against the
   generator, the imported definition sets or the MCreator core resources.
-- Full build: the verification workspace `workspace/test-1.21.1` produces `BUILD SUCCESSFUL` with Minecraft
+- Full build: a test workspace produces `BUILD SUCCESSFUL` with Minecraft
   1.21.1 official Mojang mappings, Fabric Loader 0.20.1 and Fabric API 0.116.17+1.21.1. It contains a basic
   block, a tinted leaves block, an item, a creative tab and two procedures that inline the generated code of
   the entity, world, item stack, block state, damage source, feature, enchantment, fuel, math and wait blocks.
 - Static audits: no `net.neoforged` construct remains in the shipped templates, and every method called by the
   shipped procedure templates exists in the vanilla 1.21.1 API surface (only Java standard library, MCreator
   `opt` helpers, `FabricLoader` and the generated `queueServerWork` helper are outside of it).
-- Replay of the Phase 1 user workspace: its sources, extended with the corrected templates, compiled without
+- Replay of the Phase 1 test workspace: its sources, extended with the corrected templates, compiled without
   errors against the real Fabric 1.21.1 classpath.
 
 ## Tier 2 Second Half
@@ -227,7 +226,7 @@ The following triggers are intentionally not generated and are marked as unsuppo
   generated ore features are not placed in the world yet.
 - Custom Java item models, custom item properties and search tab appearance remain unverified or unsupported.
 - Block bases other than the plain block are checked against the 1.21.1 constructor signatures but are not part
-  of the compiled verification workspace: stairs, slab, fence, wall, door, trapdoor, button, pressure plate,
+  of the compiled test workspace: stairs, slab, fence, wall, door, trapdoor, button, pressure plate,
   fence gate, pane, end rod and leaves.
 
 ### NeoForge Features Without A Direct Fabric Equivalent
